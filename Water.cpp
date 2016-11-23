@@ -1,4 +1,9 @@
+#ifdef _WIN32
 #include <GL/glut.h>
+#else
+#include <GLUT/glut.h>
+#endif
+
 #include <iostream>
 
 #include "includes/SOIL.h"
@@ -18,17 +23,18 @@ Water::~Water() {
 
 void Water::init() {
   // Initialize the textures
-  texture = SOIL_load_OGL_texture(
+	texture = 0;
+  /*texture = SOIL_load_OGL_texture(
     "ocean.jpg",
     SOIL_LOAD_AUTO,
     SOIL_CREATE_NEW_ID,
     SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
-  );
+  );*/
   if (texture == 0) {
     std::cout << "Texture was not properly loaded.\n";
   }
 
-  glActiveTexture(GL_TEXTURE0);
+  //glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -47,12 +53,12 @@ void Water::init() {
       m = rand() % 10 + 1;
       if ((i * WIDTH + j) % 10 == k) {
         if (i != 0 && i != WIDTH - 1 && j != 0 && j != HEIGHT - 1) {
-          normals[i][j] = 0.05;
+          normals[i][j] = 0.02;
         }
       }
       if ((i * WIDTH + j) % 10 == m) {
         if (i != 0 && i != WIDTH - 1 && j != 0 && j != HEIGHT - 1) {
-          normals[i][j] = -0.05;
+          normals[i][j] = -0.02;
         }
       }
     }
@@ -118,10 +124,10 @@ void Water::render() {
 
   glEnable(GL_TEXTURE_2D);
 
-  glActiveTexture(GL_TEXTURE0);
+ // glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, texture);
 
-  glColor4f(0.4, 0.4, 0.7, 0.6);
+  glColor4f(0.4, 0.4, 0.7, 0.8);
   for (i = 0; i < HEIGHT - 1; ++i) {
     glBegin(GL_TRIANGLE_STRIP);
     for (j = 0; j < WIDTH; ++j) {
@@ -163,7 +169,7 @@ void Water::handleKeyPressed(unsigned char key) {
   switch (key) {
     case ' ':
       // Make a wave in the center of the water
-      normals[HEIGHT / 2][WIDTH / 2] += 0.15;
+      normals[HEIGHT / 2][WIDTH / 2] += 0.25;
       break;
     case '1':
       ++fillMode;

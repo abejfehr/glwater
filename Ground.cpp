@@ -1,4 +1,9 @@
+#ifdef _WIN32
+#include <GL/glut.h>
+#else
 #include <GLUT/glut.h>
+#endif
+
 #include <iostream>
 
 #include "Ground.h"

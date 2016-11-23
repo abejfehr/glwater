@@ -1,4 +1,11 @@
+#ifdef _WIN32
+#include <GL/glut.h>
+#define FRAME_MS 16.666*2
+#else
 #include <GLUT/glut.h>
+#define FRAME_MS 16.666
+#endif
+
 #include <iostream>
 
 #include "GLWater.h"
@@ -38,10 +45,6 @@ int dragging = 0;
 
 // Used to store random values
 int k, m;
-
-// The simulation looks good at this speed
-int FRAME_MS = 16.66; // 60FPS
-
 int i, j; // Counters; used in like, every loop
 
 GLWater::GLWater(int argc, char** argv) {
@@ -96,7 +99,7 @@ void GLWater::initWindow(int argc, char** argv) {
 void GLWater::initOpenGL() {
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
-  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 

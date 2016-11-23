@@ -7,8 +7,8 @@ class Water {
     void render();
     void handleKeyPressed(unsigned char);
   private:
-    int WIDTH = 50;
-    int HEIGHT = 50;
+    int WIDTH = 80;
+    int HEIGHT = 80;
     double SURFACE_HEIGHT = 0.2;
     double** normals;
     double** velocities;
