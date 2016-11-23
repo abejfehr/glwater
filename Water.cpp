@@ -1,4 +1,4 @@
-#include <GLUT/glut.h>
+#include <GL/glut.h>
 #include <iostream>
 
 #include "includes/SOIL.h"
