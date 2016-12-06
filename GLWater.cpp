@@ -11,6 +11,7 @@
 #include "GLWater.h"
 #include "Water.h"
 #include "Ground.h"
+#include "Skybox.h"
 
 /**
  * Simulates a water's surface using OpenGL. Loosely follows a few of the
@@ -28,6 +29,7 @@
  *
  * Textures:
  * https://sidvind.com/wiki/Skybox_tutorial
+ * https://learnopengl.com/#!Advanced-OpenGL/Cubemaps
  *
  * @author: Abe Fehr
  */
@@ -35,6 +37,7 @@
 // The various things that are in the world
 Water water;
 Ground ground;
+Skybox skybox;
 
 // Camera things
 double camera_angle_h = 15;
@@ -43,8 +46,10 @@ int drag_x_origin;
 int drag_y_origin;
 int dragging = 0;
 
+int lighting = 0;
+int reflection = 0;
+
 // Used to store random values
-int k, m;
 int i, j; // Counters; used in like, every loop
 
 GLWater::GLWater(int argc, char** argv) {
@@ -86,7 +91,7 @@ void GLWater::start() {
  */
 void GLWater::initWindow(int argc, char** argv) {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_STENCIL);
   glutInitWindowSize(800, 400);
   glutInitWindowPosition(100, 100);
   glutCreateWindow("GLWater");
@@ -97,9 +102,6 @@ void GLWater::initWindow(int argc, char** argv) {
  * Initializes OpenGL
  */
 void GLWater::initOpenGL() {
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 }
 
@@ -108,6 +110,7 @@ void GLWater::initOpenGL() {
  */
 void GLWater::initWorld() {
   water.init();
+  skybox.init();
 }
 
 /**
@@ -128,11 +131,12 @@ void GLWater::initLights() {
   // glLightf( GL_LIGHT0, GL_QUADRATIC_ATTENUATION , 0.2f );
 
   // Enable the light
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
+  if (lighting % 2 == 0) {
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
+  }
 
-  // Allows glColor to be used to colour shapes
-  glEnable(GL_COLOR_MATERIAL);
 }
 
 /**
@@ -156,9 +160,15 @@ void GLWater::handleUpdate(int value) {
 
   // Update the angle of the camera
   glLoadIdentity();
-  glTranslatef(0, 0, -4);
+  glTranslatef(0, 0.0f, -4.0f);
   glRotated(camera_angle_v, 1.0, 0.0, 0.0);
   glRotated(camera_angle_h, 0.0, 1.0, 0.0);
+
+  // Update the status of the lighting
+  if (lighting % 2 == 0) {
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+  }
 
   // Draw this frame and schedule the next
   glutPostRedisplay();
@@ -167,6 +177,18 @@ void GLWater::handleUpdate(int value) {
 
 void GLWater::handleKeyboard(unsigned char key, int x, int y) {
   water.handleKeyPressed(key);
+
+  switch (key) {
+    case '2':
+      lighting++;
+      break;
+    case '3':
+      reflection++;
+      break;
+    case 'q':
+      exit(1);
+  }
+
 }
 
 void GLWater::handleMouseClick(int button, int state, int x, int y) {
@@ -195,30 +217,47 @@ void GLWater::handleMouseMove(int x, int y) {
  */
 void GLWater::handleDisplay() {
   // Clear the screen
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  if (reflection % 2 == 0) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  } else {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  }
 
   // Draw the ground
-  ground.render();
+  // ground.render();
+
+  if (reflection % 2 == 0) {
+    // Don't update the colour or the depth
+    glDisable(GL_DEPTH_TEST);
+    glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+
+    // Draw 1 into the stencil buffer
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
+
+    // Now drawing the floor just tags the pixels as stencil value 1
+    water.render(1);
+
+    // Re-enable the update of the color and depth
+    glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
+
+    // Only render where the stencil is set to 1
+    glStencilFunc(GL_EQUAL, 1, 0xffffffff);
+    glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+
+    // Draw the reflected sky piece, but only where the water is
+    skybox.renderReflection();
+
+    glDisable(GL_STENCIL_TEST);
+  }
 
   // Draw the water
-  water.render();
+  water.render(0);
 
-  // Draw the sky
-  // glEnable( GL_TEXTURE_2D );
-
-  // glActiveTexture(GL_TEXTURE0);
-  // glBindTexture(GL_TEXTURE_2D, texture);
-  // glBegin(GL_QUADS);
-    // glTexCoord2f(0, 1);
-    //glVertex3f(-5.f,  3.5f, -5.f);
-    // glTexCoord2f(0, 0);
-    //glVertex3f(-5.f,  3.5f,  5.f);
-    // glTexCoord2f(1, 0);
-    //glVertex3f(5.f,  3.5f,  5.f);
-    // glTexCoord2f(1, 1);
-    //glVertex3f(5.f,  3.5f, -5.f);
-  // glEnd();
-  // glDisable( GL_TEXTURE_2D );
+  // Draw the actual skybox
+  skybox.render();
 
   glutSwapBuffers();
   glutPostRedisplay();

@@ -4,12 +4,13 @@ class Water {
     ~Water();
     void init();
     void update();
-    void render();
+    void render(int);
     void handleKeyPressed(unsigned char);
   private:
-    int WIDTH = 80;
-    int HEIGHT = 80;
+    int WIDTH = 128;
+    int HEIGHT = 128;
     double SURFACE_HEIGHT = 0.2;
+    double AMPLIFICATION = 5.0;
     double** normals;
     double** velocities;
     int i, j, m, k; // Counters; used in like, every loop

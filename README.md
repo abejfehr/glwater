@@ -1,6 +1,6 @@
 # glwater
 
-![Alt text](https://github.com/abejfehr/glwater/raw/master/screenshot.png "Screenshot")
+![Alt text](https://github.com/abejfehr/glwater/raw/master/screenshot2.png "Screenshot")
 
 An attempt at simulating water in OpenGL
 
