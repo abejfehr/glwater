@@ -7,7 +7,7 @@ BUILD = build
 OUT = .
 EXE = $(OUT)/app
 
-OBJECTS = $(BUILD)/Main.o $(BUILD)/GLWater.o $(BUILD)/Water.o $(BUILD)/Ground.o
+OBJECTS = $(BUILD)/Main.o $(BUILD)/GLWater.o $(BUILD)/Water.o $(BUILD)/Ground.o $(BUILD)/Skybox.o
 
 all: $(EXE)
 

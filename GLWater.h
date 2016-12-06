@@ -20,6 +20,7 @@ class GLWater {
     static void handleKeyboard(unsigned char, int, int);
 
     void start();
+
 };
 
 #endif
