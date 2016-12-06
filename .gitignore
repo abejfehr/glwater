@@ -1,5 +1,8 @@
-*.dSYM
+.dSYM
 build
 .DS_Store
 app
 Debug
+.sdf
+.suo # this is a user configuration file apparently
+Thumbs.db
