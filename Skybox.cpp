@@ -20,15 +20,6 @@ Skybox::~Skybox() {
 }
 
 void Skybox::init() {
-  // Initialize the textures
-  // glGenTextures(1, &texture);
-  // glActiveTexture(GL_TEXTURE0);
-
-  // int width;
-  // int height;
-  // unsigned char* image;
-
-  // glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
   for (int i = 0; i < 6; ++i) {
     textures[i] = 0;
     glGenTextures(1, &(textures[i]));
@@ -50,21 +41,15 @@ void Skybox::init() {
   }
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-  // glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
 }
 
 void Skybox::render() {
   // Store the current matrix
   glPushMatrix();
 
-  // Reset and transform the matrix
-  // glLoadIdentity();
-
   // Enable/disable features
   glPushAttrib(GL_ENABLE_BIT);
   glEnable(GL_TEXTURE_2D);
-  // glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
   glDisable(GL_BLEND);
 
@@ -155,9 +140,6 @@ void Skybox::renderReflection() {
 
   glScalef(1.0f, -1.0f, 1.0f);
 
-  // Reset and transform the matrix
-  // glLoadIdentity();
-
   // Enable/disable features
   glPushAttrib(GL_ENABLE_BIT);
   glEnable(GL_TEXTURE_2D);
@@ -168,7 +150,7 @@ void Skybox::renderReflection() {
   // Always render the skybox in fill mode
   glPolygonMode(GL_FRONT, GL_FILL);
 
-  // Set all vertices to blue, for funsies
+  // Set all vertices to white
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
   // Render the front quad
