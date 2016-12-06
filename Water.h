@@ -4,7 +4,7 @@ class Water {
     ~Water();
     void init();
     void update();
-    void render(int);
+    void render(int, int);
     void handleKeyPressed(unsigned char);
   private:
     int WIDTH = 128;

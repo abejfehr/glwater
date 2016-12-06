@@ -48,6 +48,7 @@ int dragging = 0;
 
 int lighting = 0;
 int reflection = 0;
+int showSkybox = 0;
 
 // Used to store random values
 int i, j; // Counters; used in like, every loop
@@ -135,6 +136,8 @@ void GLWater::initLights() {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
+  } else {
+    glDisable(GL_LIGHTING);
   }
 
 }
@@ -167,7 +170,8 @@ void GLWater::handleUpdate(int value) {
   // Update the status of the lighting
   if (lighting % 2 == 0) {
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
+  } else {
+    glDisable(GL_LIGHTING);
   }
 
   // Draw this frame and schedule the next
@@ -180,10 +184,13 @@ void GLWater::handleKeyboard(unsigned char key, int x, int y) {
 
   switch (key) {
     case '2':
-      lighting++;
+      ++lighting;
       break;
     case '3':
-      reflection++;
+      ++reflection;
+      break;
+    case '4':
+      ++showSkybox;
       break;
     case 'q':
       exit(1);
@@ -237,7 +244,7 @@ void GLWater::handleDisplay() {
     glStencilFunc(GL_ALWAYS, 1, 0xffffffff);
 
     // Now drawing the floor just tags the pixels as stencil value 1
-    water.render(1);
+    water.render(1, 0);
 
     // Re-enable the update of the color and depth
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
@@ -254,10 +261,12 @@ void GLWater::handleDisplay() {
   }
 
   // Draw the water
-  water.render(0);
+  water.render(0, reflection);
 
   // Draw the actual skybox
-  skybox.render();
+  if (showSkybox % 2 == 0) {
+    skybox.render();
+  }
 
   glutSwapBuffers();
   glutPostRedisplay();

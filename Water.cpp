@@ -75,7 +75,7 @@ void Water::update() {
   }
 }
 
-void Water::render(int reflection) {
+void Water::render(int reflection, int color) {
   GLfloat white[] = { 0.1f, 0.1f, 0.7f, 0.3f };
   GLfloat black[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
@@ -95,7 +95,7 @@ void Water::render(int reflection) {
   if (! reflection) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.2f, 0.2f, 0.7f, 0.1f);
+    glColor4f(0.2f, 0.2f, 0.7f, color % 2 == 0 ? 0.1f : 0.8f);
   } else {
     glColor4f(0.2f, 0.2f, 0.7f, 1.0f);
   }
