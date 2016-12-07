@@ -1,12 +1,3 @@
-#ifdef _WIN32
-#include <GL/glut.h>
-#else
-#include <GLUT/glut.h>
-#endif
-
-#include <iostream>
-
-#include "includes/SOIL.h"
 #include "Skybox.h"
 
 float HEIGHT = 0.1f;
@@ -23,13 +14,15 @@ void Skybox::init() {
   for (int i = 0; i < 6; ++i) {
     textures[i] = 0;
     glGenTextures(1, &(textures[i]));
+
+	// I can't believe constructing a string is such a show
     std::string filename = "assets/skybox-";
     filename.push_back(i + '0');
     filename += ".jpg";
-    const char *thingy = filename.c_str();
-    std::cout << "Loading texture: " << thingy << "\n";
+    const char *wholeFilename = filename.c_str();
+
     textures[i] = SOIL_load_OGL_texture(
-      thingy,
+      wholeFilename,
       SOIL_LOAD_AUTO,
       SOIL_CREATE_NEW_ID,
       SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT

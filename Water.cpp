@@ -1,12 +1,3 @@
-#ifdef _WIN32
-#include <GL/glut.h>
-#else
-#include <GLUT/glut.h>
-#endif
-
-#include <iostream>
-
-#include "includes/SOIL.h"
 #include "Water.h"
 
 Water::Water() {
@@ -102,21 +93,56 @@ void Water::render(int reflection, int color) {
 
   for (i = 0; i < HEIGHT - 1; ++i) {
     glBegin(GL_TRIANGLE_STRIP);
-    for (j = 0; j < WIDTH; ++j) {
-      glNormal3f(
-        -float(A / 2) + j * (A / (WIDTH - 1)),
-        SURFACE_HEIGHT + normals[i][j] * AMPLIFICATION,
-        -float(B / 2) + (i + 0) * (B / (HEIGHT - 1))
+    for (j = 0; j < WIDTH; ++j) {\
+	  // Do the show that is calculating normals
+	  int up, down, left, right;
+	  up = i + 1 > HEIGHT - 1 ? 0 : i + 1;
+	  down = i - 1 < 0 ? HEIGHT - 1 : i - 1;
+	  right = j + 1 > HEIGHT - 1 ? 0 : j + 1;
+	  left = j - 1 < 0 ? WIDTH - 1 : j - 1;
+
+	  // Compute the normals by averaging out the normals between each vertex and its 4 neighbours
+	  Vector3f n1 = Vector3f((-float(B / 2) + (i - 1) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[down][j] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 0) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f e1 = Vector3f((-float(B / 2) + (i - 0) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[i][right] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 1) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f s1 = Vector3f((-float(B / 2) + (i + 1) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[up][j] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 0) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f w1 = Vector3f((-float(B / 2) + (i - 0) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[i][left] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j - 1) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+
+	  Vector3f normal1_ne = Vector3f::cross(n1, e1);
+	  Vector3f normal1_nw = Vector3f::cross(n1, w1);
+	  Vector3f normal1_se = Vector3f::cross(s1, e1);
+	  Vector3f normal1_sw = Vector3f::cross(s1, w1);
+
+	  Vector3f normal1 = Vector3f::normalize(normal1_ne + normal1_nw + normal1_se + normal1_sw);
+
+	  up = i + 2 > HEIGHT - 1 ? (i + 1 > HEIGHT - 1 ? 1 : 0) : i + 1;
+	  down = i;
+
+	  Vector3f n2 = Vector3f((-float(B / 2) + (i - 0) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[down][j] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 0) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f e2 = Vector3f((-float(B / 2) + (i + 1) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[i][right] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 1) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f s2 = Vector3f((-float(B / 2) + (i + 2) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[up][j] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j + 0) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+	  Vector3f w2 = Vector3f((-float(B / 2) + (i + 1) * (B / (HEIGHT - 1))) - (-float(B / 2) + i * (B / (HEIGHT - 1))), normals[i][left] * AMPLIFICATION - normals[i][j] * AMPLIFICATION, (-float(A / 2) + (j - 1) * (A / (WIDTH - 1))) - (-float(A / 2) + j * (A / (WIDTH - 1))));
+
+	  Vector3f normal2_ne = Vector3f::cross(n2, e2);
+	  Vector3f normal2_nw = Vector3f::cross(n2, w2);
+	  Vector3f normal2_se = Vector3f::cross(s2, e2);
+	  Vector3f normal2_sw = Vector3f::cross(s2, w2);
+
+	  Vector3f normal2 = Vector3f::normalize(normal2_ne + normal2_nw + normal2_se + normal2_sw);
+
+	  glNormal3f(
+		normal1.x,
+		normal1.y,
+		normal1.z
       );
       glVertex3f(
         -float(A / 2) + j * (A / (WIDTH - 1)),
         SURFACE_HEIGHT + normals[i][j] * AMPLIFICATION,
         -float(B / 2) + (i + 0) * (B / (HEIGHT - 1))
       );
-      glNormal3f(
-        -float(A / 2) + j * (A / (WIDTH - 1)),
-        SURFACE_HEIGHT + normals[i + 1][j] * AMPLIFICATION,
-        -float(B / 2) + (i + 1) * (B / (HEIGHT - 1))
+	  glNormal3f(
+		normal2.x,
+		normal2.y,
+		normal2.z
       );
       glVertex3f(
         -float(A / 2) + j * (A / (WIDTH - 1)),
